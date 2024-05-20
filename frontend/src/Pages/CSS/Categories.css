@@ -1,0 +1,17 @@
+.banner{
+    display: block;
+    margin: 20px auto;
+    width: 82%;
+}
+.categories-sort{
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: 1px solid #8d8989;
+    
+}
+.categories-products{
+    margin: 20px 170px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    row-gap: 80px;
+}
