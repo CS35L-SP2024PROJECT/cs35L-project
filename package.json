@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node backend/app.js",
     "dev": "cross-env NODE_ENV=DEVELOPMENT nodemon backend/app.js",
-    "prod": "dotenv -e backend/config/config.env cross-env NODE_ENV=PRODUCTION nodemon backend/app.js"
+    "prod": "dotenv -e backend/config/config.env cross-env NODE_ENV=PRODUCTION nodemon backend/app.js",
+    "seeder": "node backend/seeder/seeder.js"
   },
   "author": "",
   "license": "ISC",
