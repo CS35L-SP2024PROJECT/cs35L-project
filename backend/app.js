@@ -5,6 +5,14 @@ import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import connectDatabase from './config/dbConnect.js';
 import productRoutes from './routes/products.js';
+import errorMiddleware from "./middlewares/errors.js";
+
+// Handle Uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.log('ERROR: ${err}');
+  console.log('Shutting down due to uncaught exception');
+  process.exit(1);
+});
 
 // Convert the import.meta.url to a file path
 const __filename = fileURLToPath(import.meta.url);
@@ -27,10 +35,22 @@ connectDatabase().then(() => {
   // Import all routes
   app.use('/api/v1', productRoutes);
 
+  // Using error middleware
+  app.use(errorMiddleware);
+
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`Server started on PORT: ${PORT} in ${process.env.NODE_ENV} mode.`);
   });
 }).catch(error => {
   console.error('Failed to start the server due to database connection error:', error);
+});
+
+// Handle Unhandled Promise rejections
+process.on("unhandledRejection", (err) => {
+  console.log('ERROR: ${err}');
+  console.log("Shutting down server due to Unhandled Promise Rejection");
+  server.close(() => {
+    process.exit(1);
+  });
 });
