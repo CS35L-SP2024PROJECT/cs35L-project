@@ -20,6 +20,8 @@
     "dotenv": "^16.4.5",
     "dotenv-cli": "^5.1.0",
     "express": "^4.19.2",
+    "mongo": "^0.1.0",
+    "mongod": "^2.0.0",
     "mongodb": "^6.6.2",
     "mongoose": "^8.3.4"
   }
