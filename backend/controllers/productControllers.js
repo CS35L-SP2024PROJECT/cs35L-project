@@ -1,14 +1,28 @@
-import catchAsynErrors from '../middlewares/catchAsynErrors.js';
 import Product from '../models/product.js';
 import ErrorHandler from '../utils/errorHandler.js';
+import catchAsyncErrors from '../middlewares/catchAsyncErrors.js';
+import APIFilters from '../utils/apiFilters.js';
+
 
 // Get all products => /api/v1/products
 export const getProducts = catchAsyncErrors(async (req, res) => {
   try {
-    console.log('Fetching products...');
-    const products = await Product.find();
+    const resPerPage = 4;
+    console.log('Fetching products with query:', req.query);
+
+    const apiFilters = new APIFilters(Product.find(), req.query).search().filter();
+    apiFilters.pagination(resPerPage);
+
+    // Log the intermediate state of the query
+    console.log('APIFilters query:', apiFilters.query);
+
+    let products = await apiFilters.query.clone();
+    let filteredProductsCount = products.length;
+
     console.log('Products fetched successfully:', products);
     res.status(200).json({
+      resPerPage,
+      filteredProductsCount,
       products,
     });
   } catch (error) {
@@ -16,6 +30,7 @@ export const getProducts = catchAsyncErrors(async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch products' });
   }
 });
+  
 
 // Create new Product => /api/v1/admin/products
 export const newProduct = catchAsyncErrors(async (req, res) => {

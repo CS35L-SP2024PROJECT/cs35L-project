@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
 import connectDatabase from './config/dbConnect.js';
 import productRoutes from './routes/products.js';
+import authRoutes from './routes/auth.js';
 import errorMiddleware from "./middlewares/errors.js";
 
 // Handle Uncaught exceptions
@@ -34,6 +35,7 @@ app.use(express.json());
 connectDatabase().then(() => {
   // Import all routes
   app.use('/api/v1', productRoutes);
+  app.use('/api/v1', authRoutes);
 
   // Using error middleware
   app.use(errorMiddleware);
