@@ -35,6 +35,8 @@ export const getProducts = catchAsyncErrors(async (req, res) => {
 // Create new Product => /api/v1/admin/products
 export const newProduct = catchAsyncErrors(async (req, res) => {
   try {
+    req.body.user = req.user._id;
+    
     console.log('Creating a new product with data:', req.body);
     const product = new Product(req.body);
     await product.save();

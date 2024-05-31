@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
+import cookieParser from "cookie-parser";
 import connectDatabase from './config/dbConnect.js';
 import productRoutes from './routes/products.js';
 import authRoutes from './routes/auth.js';
@@ -30,6 +31,7 @@ mongoose.set('debug', true);
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 // Connect to the database
 connectDatabase().then(() => {
