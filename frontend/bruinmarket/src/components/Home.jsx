@@ -8,33 +8,42 @@ import toast from "react-hot-toast";
 const Home = () => {
     const { data, isLoading, error, isError } = useGetProductsQuery();
 
-    useEffect(() =>{
-        if(isError) {
-            toast.success(error?.data?.message);
+    console.log('Loading:', isLoading);
+    console.log('Error:', error);
+    const products = data ? data.products : [];
+    console.log('Products:', products);
+
+    useEffect(() => {
+        if (isError) {
+            toast.error(error?.data?.message || 'Error fetching products');
         }
-    }, [isError]);
+    }, [isError, error]);
 
-
-    if(!isLoading) return <Loader/>;
+    if (isLoading) return <Loader />;
+    if (error) return <p>Error: {error.message}</p>;
 
     return (
         <>
-        <MetaData title={"Buy Best Products Online"} />
-        <div className="row">
-            <div className="col-12 col-sm-6 col-md-12">
-                <h1 id="products_heading" className="text-secondary">Latest Products</h1>
+            <MetaData title={"Buy Best Products Online"} />
+            <div className="row">
+                <div className="col-12 col-sm-6 col-md-12">
+                    <h1 id="products_heading" className="text-secondary">Latest Products</h1>
 
-            <section id="products" className="mt-5">
-                <div className="row">
-                    {data?.products?.map((product) => (
-                        <ProductItem product={product}/>
-                    ))}
+                    <section id="products" className="mt-5">
+                        <div className="row">
+                            {products.length > 0 ? (
+                                products.map((product) => (
+                                    <ProductItem key={product._id} product={product} />
+                                ))
+                            ) : (
+                                <p>No products found</p>
+                            )}
+                        </div>
+                    </section>
                 </div>
-            </section>
             </div>
-        </div>
         </>
-    )   
-}
+    );
+};
 
-export default Home
+export default Home;
