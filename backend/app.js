@@ -12,7 +12,7 @@ import errorMiddleware from "./middlewares/errors.js";
 
 // Handle Uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.log('ERROR: ${err}');
+  console.log(`ERROR: ${err}`);
   console.log('Shutting down due to uncaught exception');
   process.exit(1);
 });
@@ -44,7 +44,7 @@ connectDatabase().then(() => {
   // Using error middleware
   app.use(errorMiddleware);
 
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 5001;
   const server = app.listen(PORT, () => {
     console.log(`Server started on PORT: ${PORT} in ${process.env.NODE_ENV} mode.`);
   });
@@ -54,7 +54,7 @@ connectDatabase().then(() => {
 
 // Handle Unhandled Promise rejections
 process.on("unhandledRejection", (err) => {
-  console.log('ERROR: ${err}');
+  console.log(`ERROR: ${err}`);
   console.log("Shutting down server due to Unhandled Promise Rejection");
   server.close(() => {
     process.exit(1);
