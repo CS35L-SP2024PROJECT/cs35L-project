@@ -5,12 +5,14 @@ import APIFilters from '../utils/apiFilters.js';
 
 
 // Get all products => /api/v1/products
-export const getProducts = catchAsyncErrors(async (req, res) => {
+export const getProducts = catchAsyncErrors(async (req, res, next) => {
   try {
     const resPerPage = 4;
     console.log('Fetching products with query:', req.query);
 
+   
     const apiFilters = new APIFilters(Product.find(), req.query).search().filter();
+
     apiFilters.pagination(resPerPage);
 
     // Log the intermediate state of the query
