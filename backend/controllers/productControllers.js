@@ -6,32 +6,35 @@ import APIFilters from '../utils/apiFilters.js';
 
 // Get all products => /api/v1/products
 export const getProducts = catchAsyncErrors(async (req, res, next) => {
-  try {
-    const resPerPage = 4;
-    console.log('Fetching products with query:', req.query);
-
-   
-    const apiFilters = new APIFilters(Product.find(), req.query).search().filter();
-
-    apiFilters.pagination(resPerPage);
-
-    // Log the intermediate state of the query
-    console.log('APIFilters query:', apiFilters.query);
-
-    let products = await apiFilters.query.clone();
-    let filteredProductsCount = products.length;
-
-    console.log('Products fetched successfully:', products);
-    res.status(200).json({
-      resPerPage,
-      filteredProductsCount,
-      products,
-    });
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    res.status(500).json({ error: 'Failed to fetch products' });
-  }
-});
+    try {
+      const resPerPage = 4;
+      console.log('Fetching products with query:', req.query);
+  
+      const apiFilters = new APIFilters(Product.find(), req.query).search().filter();
+      
+      // Calculate the total number of products (before pagination)
+      const totalProducts = await Product.countDocuments(apiFilters.query.getFilter());
+  
+      apiFilters.pagination(resPerPage);
+  
+      // Log the intermediate state of the query
+      console.log('APIFilters query:', apiFilters.query);
+  
+      let products = await apiFilters.query.clone();
+      let filteredProductsCount = products.length;
+  
+      console.log('Products fetched successfully:', products);
+      res.status(200).json({
+        resPerPage,
+        filteredProductsCount: totalProducts, // Ensure this returns the total count of products
+        currentPage: parseInt(req.query.page) || 1,
+        products,
+      });
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      res.status(500).json({ error: 'Failed to fetch products' });
+    }
+  });
   
 
 // Create new Product => /api/v1/admin/products
@@ -211,10 +214,3 @@ export const deleteProduct = catchAsyncErrors(async (req, res) => {
     });
   });
   
-
-
-
-
-
-
-

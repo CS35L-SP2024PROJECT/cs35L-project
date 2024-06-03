@@ -4,9 +4,17 @@ import { useGetProductsQuery } from "../redux/api/productsApi";
 import ProductItem from "./product/ProductItem";
 import Loader from "./layout/Loader";
 import toast from "react-hot-toast";
+import CustomPagination from "./layout/CustomPagination";
+import { useSearchParams } from "react-router-dom";
 
 const Home = () => {
-    const { data, isLoading, error, isError } = useGetProductsQuery();
+
+    let [searchParams] = useSearchParams();
+    const page = searchParams.get("page") || 1;
+    const params = { page };
+
+
+    const { data, isLoading, error, isError } = useGetProductsQuery(params);
 
     console.log('Loading:', isLoading);
     console.log('Error:', error);
@@ -19,8 +27,10 @@ const Home = () => {
         }
     }, [isError, error]);
 
+    //const columnSize = keyword ? 4 : 3;
+
     if (isLoading) return <Loader />;
-    if (error) return <p>Error: {error.message}</p>;
+    //if (error) return <p>Error: {error.message}</p>;
 
     return (
         <>
@@ -31,15 +41,17 @@ const Home = () => {
 
                     <section id="products" className="mt-5">
                         <div className="row">
-                            {products.length > 0 ? (
-                                products.map((product) => (
-                                    <ProductItem key={product._id} product={product} />
-                                ))
-                            ) : (
-                                <p>No products found</p>
-                            )}
+                        {data?.products?.map((product) => (
+                            <ProductItem product={product} />
+                        ))}
                         </div>
                     </section>
+
+                    <CustomPagination
+                        resPerPage={data?.resPerPage}
+                        filteredProductsCount={data?.filteredProductsCount}
+                    />
+
                 </div>
             </div>
         </>
