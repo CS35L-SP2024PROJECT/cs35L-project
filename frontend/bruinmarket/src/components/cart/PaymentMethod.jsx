@@ -4,9 +4,9 @@ import { useSelector } from "react-redux";
 import CheckoutSteps from "./CheckoutSteps";
 import { caluclateOrderCost } from "../../helpers/helpers";
 import {
-    useCreateNewOrderMutation,
-    useStripeCheckoutSessionMutation,
-  } from "../../redux/api/orderApi";
+  useCreateNewOrderMutation,
+  useStripeCheckoutSessionMutation,
+} from "../../redux/api/orderApi";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -17,24 +17,22 @@ const PaymentMethod = () => {
 
   const { shippingInfo, cartItems } = useSelector((state) => state.cart);
 
-  const [createNewOrder, { error, isSuccess }] =
-    useCreateNewOrderMutation();
+  const [createNewOrder, { error, isSuccess }] = useCreateNewOrderMutation();
 
-const [
+  const [
     stripeCheckoutSession,
     { data: checkoutData, error: checkoutError, isLoading },
-    ] = useStripeCheckoutSessionMutation();
+  ] = useStripeCheckoutSessionMutation();
 
+  useEffect(() => {
+    if (checkoutData) {
+      window.location.href = checkoutData?.url;
+    }
 
-    useEffect(() => {
-        if (checkoutData) {
-          window.location.href = checkoutData?.url;
-        }
-    
-        if (checkoutError) {
-          toast.error(checkoutError?.data?.message);
-        }
-      }, [checkoutData, checkoutError]);
+    if (checkoutError) {
+      toast.error(checkoutError?.data?.message);
+    }
+  }, [checkoutData, checkoutError]);
 
   useEffect(() => {
     if (error) {
@@ -42,7 +40,7 @@ const [
     }
 
     if (isSuccess) {
-      navigate("/");
+      navigate("/me/orders?order_success=true");
     }
   }, [error, isSuccess]);
 
@@ -122,7 +120,12 @@ const [
               </label>
             </div>
 
-            <button id="shipping_btn" type="submit" className="btn py-2 w-100" disabled={isLoading}>
+            <button
+              id="shipping_btn"
+              type="submit"
+              className="btn py-2 w-100"
+              disabled={isLoading}
+            >
               CONTINUE
             </button>
           </form>
