@@ -23,15 +23,15 @@ const Header = () => {
       <div className="col-12 col-md-3 ps-5">
         <div className="navbar-brand">
           <a href="/">
-            <img src="/images/shopit_logo.png" alt="ShopIT Logo" />
+            <img src="/images/bruinmarket_logo.png" alt="BruinMarket Logo" style={{ width: '50px', height: '50px' }} />
           </a>
         </div>
       </div>
       <div className="col-12 col-md-6 mt-2 mt-md-0">
         <Search />
       </div>
-      <div className="col-12 col-md-3 mt-4 mt-md-0 text-center">
-        <a href="/cart" style={{ textDecoration: "none" }}>
+      <div className="col-12 col-md-3 mt-4 mt-md-0 d-flex align-items-center justify-content-center">
+        <a href="/cart" style={{ textDecoration: "none" }} className="me-3">
           <span id="cart" className="ms-3">
             {" "}
             Cart{" "}
