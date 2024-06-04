@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useForgotPasswordMutation } from "../../redux/api/userApi";
 import { toast } from "react-hot-toast";
@@ -66,3 +66,6 @@ const ForgotPassword = () => {
       </div>
     );
 };
+
+
+export default ForgotPassword;

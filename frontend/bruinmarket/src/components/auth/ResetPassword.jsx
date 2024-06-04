@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useResetPasswordMutation } from "../../redux/api/userApi";
 import { toast } from "react-hot-toast";
@@ -12,7 +12,7 @@ const ResetPassword = () => {
         const navigate = useNavigate();
         const params = useParams();
 
-        const [resetPassword,  { isLoading, error, isSucccess }] = 
+        const [resetPassword,  { isLoading, error, isSuccess }] = 
          useResetPasswordMutation();
 
         const { isAuthenticated } = useSelector((state) => state.auth);
@@ -36,7 +36,7 @@ const ResetPassword = () => {
           e.preventDefault();
 
           if(password !== confirmPassword) {
-                return toast.error("Passwords do not match");
+                return toast.error("Passwords do not match. Try again please!");
           }
           const data = { password, confirmPassword };
 
@@ -63,9 +63,9 @@ const ResetPassword = () => {
             </div>
   
             <div className="mb-3">
-              <label htmlFor="confirm_password_field" className="form-label"
-                >Confirm Password</label
-              >
+            <label htmlFor="confirm_password_field" className="form-label">
+              Confirm Password
+            </label>
               <input
                 type="password"
                 id="confirm_password_field"
