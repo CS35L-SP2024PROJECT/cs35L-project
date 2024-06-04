@@ -1,4 +1,5 @@
 import React from 'react';
+import SideMenu from "./SideMenu";
 
 const UserLayout = ({ children } ) => {
     return (
@@ -10,7 +11,7 @@ const UserLayout = ({ children } ) => {
             <div className="container">
                 <div className="row justify-content-around">
                     <div className="col-12 col-lg-3">
-                        <Sidemenu />
+                        <SideMenu />
                     </div>
                     <div className="col-12 col-lg-8 user-dashboard">{children} </div>
                  </div>
