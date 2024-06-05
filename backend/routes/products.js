@@ -1,15 +1,36 @@
-import express from 'express';
-import { canUserReview, getProducts, newProduct, getProductDetails, updateProduct, deleteProduct, createProductReview, getProductReviews, deleteReview} from '../controllers/productControllers.js';
-import { authorizeRoles, isAuthenticatedUser } from '../middlewares/auth.js';
-
+import express from "express";
+import {
+  canUserReview,
+  createProductReview,
+  deleteProduct,
+  deleteProductImage,
+  deleteReview,
+  getAdminProducts,
+  getProductDetails,
+  getProductReviews,
+  getProducts,
+  newProduct,
+  updateProduct,
+  uploadProductImages,
+} from "../controllers/productControllers.js";
+import { authorizeRoles, isAuthenticatedUser } from "../middlewares/auth.js";
 const router = express.Router();
 
 router.route("/products").get(getProducts);
 router
   .route("/admin/products")
-  .post(isAuthenticatedUser, authorizeRoles("admin"), newProduct);
+  .post(isAuthenticatedUser, authorizeRoles("admin"), newProduct)
+  .get(isAuthenticatedUser, authorizeRoles("admin"), getAdminProducts);
 
 router.route("/products/:id").get(getProductDetails);
+
+router
+  .route("/admin/products/:id/upload_images")
+  .put(isAuthenticatedUser, authorizeRoles("admin"), uploadProductImages);
+
+router
+  .route("/admin/products/:id/delete_image")
+  .put(isAuthenticatedUser, authorizeRoles("admin"), deleteProductImage);
 
 router
   .route("/admin/products/:id")
