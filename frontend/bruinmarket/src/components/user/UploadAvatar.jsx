@@ -41,17 +41,21 @@ const UploadAvatar = () => {
   };
 
   const onChange = (e) => {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      if (reader.readyState === 2) {
-        setAvatarPreview(reader.result);
-        setAvatar(reader.result);
-      }
-    };
-
-    reader.readAsDataURL(e.target.files[0]);
-  };
+    console.log(e.target.files); // Log the files
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (reader.readyState === 2) {
+                setAvatarPreview(reader.result);
+                setAvatar(reader.result);
+            }
+        };
+        reader.readAsDataURL(file);
+    } else {
+        console.error("No file selected or file is invalid.");
+    }
+};
 
   return (
     <UserLayout>

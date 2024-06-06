@@ -1,41 +1,46 @@
-import Product from '../models/product.js';
-import ErrorHandler from '../utils/errorHandler.js';
-import catchAsyncErrors from '../middlewares/catchAsyncErrors.js';
-import APIFilters from '../utils/apiFilters.js';
+import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
+import Product from "../models/product.js";
 import Order from "../models/order.js";
+import APIFilters from "../utils/apiFilters.js";
+import ErrorHandler from "../utils/errorHandler.js";
+import { delete_file, upload_file } from "../utils/cloudinary.js";
 
-// Get all products => /api/v1/products
+// Create new Product   =>  /api/v1/products
 export const getProducts = catchAsyncErrors(async (req, res, next) => {
-    try {
-      const resPerPage = 4;
-      console.log('Fetching products with query:', req.query);
-  
-      const apiFilters = new APIFilters(Product.find(), req.query).search().filter();
-      
-      // Calculate the total number of products (before pagination)
-      const totalProducts = await Product.countDocuments(apiFilters.query.getFilter());
-  
-      apiFilters.pagination(resPerPage);
-  
-      // Log the intermediate state of the query
-      console.log('APIFilters query:', apiFilters.query);
-  
-      let products = await apiFilters.query.clone();
-      let filteredProductsCount = products.length;
-  
-      console.log('Products fetched successfully:', products);
-      res.status(200).json({
-        resPerPage,
-        filteredProductsCount: totalProducts, // Ensure this returns the total count of products
-        currentPage: parseInt(req.query.page) || 1,
-        products,
-      });
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      res.status(500).json({ error: 'Failed to fetch products' });
-    }
-  });
-  
+  try {
+    const resPerPage = 4;
+    console.log('Fetching products with query:', req.query);
+
+    console.log('Initial query:', Product.find());
+    const apiFilters = new APIFilters(Product.find(), req.query).search().filter();
+    
+    console.log('After search:', apiFilters.query);
+    apiFilters.filter();
+    console.log('After filter:', apiFilters.query);
+    
+    // Calculate the total number of products (before pagination)
+    const totalProducts = await Product.countDocuments(apiFilters.query.getFilter());
+
+    apiFilters.pagination(resPerPage);
+
+    // Log the intermediate state of the query
+    console.log('APIFilters query:', apiFilters.query);
+
+    let products = await apiFilters.query.clone();
+    let filteredProductsCount = products.length;
+
+    console.log('Products fetched successfully:', products);
+    res.status(200).json({
+      resPerPage,
+      filteredProductsCount: totalProducts, // Ensure this returns the total count of products
+      currentPage: parseInt(req.query.page) || 1,
+      products,
+    });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
 
 // Create new Product   =>  /api/v1/admin/products
 export const newProduct = catchAsyncErrors(async (req, res) => {
@@ -197,7 +202,7 @@ export const createProductReview = catchAsyncErrors(async (req, res, next) => {
 
 // Get product reviews   =>  /api/v1/reviews
 export const getProductReviews = catchAsyncErrors(async (req, res, next) => {
-  const product = await Product.findById(req.query.id);
+  const product = await Product.findById(req.query.id).populate("reviews.user");
 
   if (!product) {
     return next(new ErrorHandler("Product not found", 404));

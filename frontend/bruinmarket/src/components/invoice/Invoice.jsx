@@ -49,19 +49,19 @@ const Invoice = () => {
         <div id="order_invoice" className="p-3 border border-secondary">
           <header className="clearfix">
             <div id="logo">
-              <img src="/images/invoice-logo.png" alt="Company Logo" />
+              <img src="/images/bruinmarket_logo.png" alt="Company Logo" />
             </div>
             <h1>INVOICE # {order?._id}</h1>
             <div id="company" className="clearfix">
               <div>BruinMarket</div>
               <div>
-                455 Foggy Heights,
+                405 Hilgard Avenue,
                 <br />
-                AZ 85004, US
+                CA 90024, US
               </div>
-              <div>(602) 519-0450</div>
+              <div>(925) 523-9256</div>
               <div>
-                <a href="mailto:info@shopit.com">info@shopit.com</a>
+                <a href="mailto:noreply@BruinMarket.com">noreply@BruinMarket.com</a>
               </div>
             </div>
             <div id="project">
@@ -149,7 +149,7 @@ const Invoice = () => {
           </main>
           <footer>
             Invoice was created on a computer and is valid without the
-            signature.
+            signature. Go Bruins!
           </footer>
         </div>
       </div>
