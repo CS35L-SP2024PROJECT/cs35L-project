@@ -1,36 +1,37 @@
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Order from "../models/order.js";
-
 import Stripe from "stripe";
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Create stripe checkout session   =>  /api/v1/payment/checkout_session
-export const stripeCheckoutSession = catchAsyncErrors(
-  async (req, res, next) => {
-    const body = req?.body;
+// Create stripe checkout session => /api/v1/payment/checkout_session
+export const stripeCheckoutSession = catchAsyncErrors(async (req, res, next) => {
+  console.log('Creating Stripe checkout session with request body:', req.body);
+  
+  const body = req.body;
 
+  try {
     const line_items = body?.orderItems?.map((item) => {
-        return {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: item?.name,
-              images: [item?.image],
-              metadata: { productId: item?.product },
-            },
-            unit_amount: item?.price * 100,
+      return {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: item?.name,
+            images: [item?.image],
+            metadata: { productId: item?.product },
           },
-          tax_rates: ["txr_1PNtswCQuqkWrfMCL1cJu0ZE"],
-          quantity: item?.quantity,
-        };
-      });
-  
-      const shippingInfo = body?.shippingInfo;
-  
-      const shipping_rate =
-        body?.itemsPrice >= 200
-          ? "shr_1PNtnmCQuqkWrfMC8fbnNhC3"
-          : "shr_1PNtnXCQuqkWrfMCsJ9Mwsud";
+          unit_amount: item?.price * 100,
+        },
+        tax_rates: ["txr_1PNtswCQuqkWrfMCL1cJu0ZE"],
+        quantity: item?.quantity,
+      };
+    });
+
+    const shippingInfo = body?.shippingInfo;
+
+    const shipping_rate =
+      body?.itemsPrice >= 200
+        ? "shr_1PNtnmCQuqkWrfMC8fbnNhC3"
+        : "shr_1PNtnXCQuqkWrfMCsJ9Mwsud";
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -48,37 +49,49 @@ export const stripeCheckoutSession = catchAsyncErrors(
       line_items,
     });
 
+    console.log('Stripe checkout session created successfully:', session);
+
     res.status(200).json({
       url: session.url,
     });
+  } catch (error) {
+    console.error('Error creating Stripe checkout session:', error);
+    return next(new ErrorHandler('Failed to create Stripe checkout session', 500));
   }
-);
+});
 
 const getOrderItems = async (line_items) => {
+  console.log('Getting order items from line items:', line_items);
   return new Promise((resolve, reject) => {
     let cartItems = [];
 
     line_items?.data?.forEach(async (item) => {
-      const product = await stripe.products.retrieve(item.price.product);
-      const productId = product.metadata.productId;
+      try {
+        const product = await stripe.products.retrieve(item.price.product);
+        const productId = product.metadata.productId;
 
-      cartItems.push({
-        product: productId,
-        name: product.name,
-        price: item.price.unit_amount_decimal / 100,
-        quantity: item.quantity,
-        image: product.images[0],
-      });
+        cartItems.push({
+          product: productId,
+          name: product.name,
+          price: item.price.unit_amount_decimal / 100,
+          quantity: item.quantity,
+          image: product.images[0],
+        });
 
-      if (cartItems.length === line_items?.data?.length) {
-        resolve(cartItems);
+        if (cartItems.length === line_items?.data?.length) {
+          resolve(cartItems);
+        }
+      } catch (error) {
+        console.error('Error retrieving product:', error);
+        reject(error);
       }
     });
   });
 };
 
-// Create new order after payment   =>  /api/v1/payment/webhook
+// Create new order after payment => /api/v1/payment/webhook
 export const stripeWebhook = catchAsyncErrors(async (req, res, next) => {
+  console.log('Received webhook event');
   try {
     const signature = req.headers["stripe-signature"];
 
@@ -88,12 +101,14 @@ export const stripeWebhook = catchAsyncErrors(async (req, res, next) => {
       process.env.STRIPE_WEBHOOK_SECRET
     );
 
+    console.log('Stripe event constructed:', event);
+
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
+      console.log('Checkout session completed:', session);
 
-      const line_items = await stripe.checkout.sessions.listLineItems(
-        session.id
-      );
+      const line_items = await stripe.checkout.sessions.listLineItems(session.id);
+      console.log('Line items retrieved:', line_items);
 
       const orderItems = await getOrderItems(line_items);
       const user = session.client_reference_id;
@@ -128,11 +143,14 @@ export const stripeWebhook = catchAsyncErrors(async (req, res, next) => {
         user,
       };
 
+      console.log('Creating order with data:', orderData);
+
       await Order.create(orderData);
 
       res.status(200).json({ success: true });
     }
   } catch (error) {
-    console.log("Error => ", error);
+    console.error('Error handling Stripe webhook:', error);
+    res.status(500).json({ error: 'Webhook handler failed' });
   }
 });
